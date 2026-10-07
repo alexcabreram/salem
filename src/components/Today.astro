@@ -1,0 +1,67 @@
+---
+// Illustrative conversation, written to match what SALEM does today:
+// work notifications and a task inbox, over a messaging app.
+const messages = [
+  { from: 'salem', time: '08:12', text: 'Morning. Two things changed overnight: the backup finished, and the build on main failed after yesterday\'s last merge. The test job is missing a configuration value.' },
+  { from: 'salem', time: '08:12', text: 'I added "Fix the failing build" to your inbox for today.' },
+  { from: 'you', time: '08:15', text: 'Thanks. What else is on today?' },
+  { from: 'salem', time: '08:15', text: 'Three items. The build fix comes first. The other two can wait until Thursday. Move them?' },
+  { from: 'you', time: '08:16', text: 'Yes, move them.' },
+  { from: 'salem', time: '08:16', text: 'Moved to Thursday. Your inbox for today has one item.' },
+];
+---
+
+<div class="today">
+  <ol class="thread" aria-label="Illustrative conversation with SALEM">
+    {messages.map((m) => (
+      <li class:list={['msg', `msg-${m.from}`]}>
+        <span class="visually-hidden">{m.from === 'salem' ? 'SALEM' : 'You'}:</span>
+        <p>{m.text}</p>
+        <time>{m.time}</time>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .today {
+    max-width: 34rem;
+    width: 100%;
+  }
+  .thread {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .msg {
+    max-width: 88%;
+    padding: 0.75rem 1rem 0.55rem;
+    border-radius: 16px;
+    display: grid;
+    gap: 0.2rem;
+  }
+  .msg p {
+    font-size: 0.9875rem;
+    line-height: 1.5;
+  }
+  .msg time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    justify-self: end;
+  }
+  .msg-salem {
+    background: var(--coal-2);
+    border-bottom-left-radius: 4px;
+  }
+  .msg-salem + .msg-salem {
+    border-top-left-radius: 4px;
+  }
+  .msg-you {
+    justify-self: end;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-bottom-right-radius: 4px;
+  }
+</style>

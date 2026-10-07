@@ -1,5 +1,4 @@
 @import '@fontsource-variable/schibsted-grotesk';
-@import '@fontsource/ibm-plex-mono/400.css';
 
 :root {
   --night: #050607;
@@ -12,7 +11,6 @@
   --lamp-hot: #fff4d6;
 
   --sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   --wrap: 72rem;
   --gutter: clamp(1rem, 4vw, 2.5rem);
@@ -63,6 +61,16 @@ a {
   color: inherit;
 }
 
+::selection {
+  background: var(--lamp);
+  color: var(--night);
+}
+
+html {
+  scrollbar-color: var(--line) var(--night);
+  caret-color: var(--lamp);
+}
+
 :focus-visible {
   outline: 2px solid var(--lamp);
   outline-offset: 3px;
@@ -111,4 +119,48 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Status: label text plus shape, never colour alone */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text);
+  white-space: nowrap;
+  margin-right: 0.5rem;
+}
+.status::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.status-running::before {
+  background: var(--lamp);
+}
+.status-building::before {
+  border: 1.5px solid var(--lamp);
+  background: linear-gradient(90deg, var(--lamp) 50%, transparent 50%);
+}
+.status-exploring::before,
+.status-concept::before {
+  border: 1.5px dashed var(--muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.875rem;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  font-weight: 500;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn:hover {
+  border-color: var(--muted);
 }

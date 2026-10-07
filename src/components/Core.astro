@@ -32,10 +32,8 @@ const { class: className } = Astro.props;
     left: 50%;
     bottom: 4%;
     transform: translateX(-50%);
-    font-family: var(--mono);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--muted);
-    letter-spacing: 0.04em;
     white-space: nowrap;
   }
   .core-state span::before {
@@ -51,7 +49,7 @@ const { class: className } = Astro.props;
 </style>
 
 <script>
-  type Node = { a: number; r: number; speed: number; size: number; glow: number };
+  type Node = { name: string; a: number; r: number; speed: number; size: number; glow: number };
   type Pulse = { node: number; t: number; dir: 1 | -1 };
 
   const STATES = ['Idle', 'Delegating', 'Acting', 'Synthesizing'] as const;
@@ -68,9 +66,11 @@ const { class: className } = Astro.props;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Satellites: models, agents, tools and devices around the core.
-    const nodes: Node[] = Array.from({ length: 9 }, (_, i) => ({
+    const names = ['Claude', 'Calendar', 'Local model', 'Home', 'GitHub', 'Messages', 'Azure AI', 'Files', 'MCP tools'];
+    const nodes: Node[] = names.map((name, i) => ({
+      name,
       a: (i / 9) * Math.PI * 2 + (i % 2 ? 0.25 : -0.1),
-      r: i % 3 === 0 ? 0.42 : i % 3 === 1 ? 0.33 : 0.38,
+      r: i % 3 === 0 ? 0.36 : i % 3 === 1 ? 0.27 : 0.32,
       speed: (i % 2 ? 1 : -1) * (0.012 + (i % 4) * 0.004),
       size: i % 3 === 0 ? 3.2 : 2.4,
       glow: 0,
@@ -106,6 +106,12 @@ const { class: className } = Astro.props;
       while (picked.size < count) picked.add(Math.floor(Math.random() * nodes.length));
       pulses = [...picked].map((node) => ({ node, t: 0, dir: 1 }));
       setState(1, now);
+      if (label) label.textContent = `Delegating to ${listNames()}`;
+    }
+
+    function listNames() {
+      const n = pulses.map((p) => nodes[p.node].name);
+      return n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}` : n[0];
     }
 
     function pos(n: Node) {
@@ -170,6 +176,20 @@ const { class: className } = Astro.props;
         ctx!.beginPath();
         ctx!.arc(x, y, n.size, 0, Math.PI * 2);
         ctx!.fill();
+      }
+
+      // Satellite names, only where there is room for them
+      if (s >= 300) {
+        ctx!.font = `${s >= 420 ? 12 : 11}px ${css.getPropertyValue('--sans')}`;
+        ctx!.textBaseline = 'middle';
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i];
+          const [x, y] = pos(n);
+          const right = Math.cos(n.a) >= 0;
+          ctx!.textAlign = right ? 'left' : 'right';
+          ctx!.fillStyle = n.glow > 0.2 ? rgba(hot, 0.55 + 0.45 * n.glow) : 'rgba(142,145,150,0.75)';
+          ctx!.fillText(n.name, x + (right ? 10 : -10), y);
+        }
       }
 
       // Core: breathing light

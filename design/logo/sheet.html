@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SALEM logo exploration</title>
+<style>
+  @font-face {
+    font-family: 'Schibsted';
+    src: url('../../node_modules/@fontsource-variable/schibsted-grotesk/files/schibsted-grotesk-latin-wght-normal.woff2') format('woff2');
+    font-weight: 400 900;
+  }
+  :root { --night:#050607; --coal:#101214; --line:#2a2e33; --text:#e9e7e2; --muted:#8e9196; --lamp:#e8c46a; --hot:#fff4d6; --paper:#f3f1ec; --ink:#16181b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--night); color:var(--text); font-family:'Schibsted',sans-serif; padding:56px; width:1600px; }
+  h1 { font-size:28px; font-weight:600; letter-spacing:-0.02em; margin:0 0 6px; }
+  .sub { color:var(--muted); margin:0 0 48px; font-size:16px; }
+  .opt { display:grid; grid-template-columns: 340px 1fr 260px 220px; gap:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:28px; }
+  .opt > div { padding:32px; display:grid; align-content:center; gap:14px; }
+  .opt > div + div { border-left:1px solid var(--line); }
+  .name { font-size:22px; font-weight:600; letter-spacing:-0.01em; }
+  .idea { color:var(--muted); font-size:15px; line-height:1.5; }
+  .big { display:grid; place-items:center; background:var(--coal); }
+  .lockup { display:flex; align-items:center; gap:18px; }
+  .word { font-weight:500; font-size:30px; letter-spacing:0.42em; margin-right:-0.42em; }
+  .small-row { display:flex; align-items:end; gap:18px; }
+  .small-row span { color:var(--muted); font-size:12px; display:block; text-align:center; margin-top:6px; }
+  .light { background:var(--paper) !important; color:var(--ink); }
+  .light .word { color:var(--ink); }
+  .app { width:96px; height:96px; border-radius:22px; background:var(--night); display:grid; place-items:center; border:1px solid var(--line); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff4d6" stop-opacity=".95"/>
+      <stop offset=".35" stop-color="#e8c46a" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#e8c46a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- A: Thread. An S drawn as one continuous line that passes through the light. -->
+  <symbol id="mark-a" viewBox="0 0 64 64">
+    <path d="M42 15.5 A 9.6 9.6 0 1 0 32 32 A 9.6 9.6 0 1 1 22 48.5" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
+    <circle cx="32" cy="32" r="11" fill="url(#glow)"/>
+    <circle cx="32" cy="32" r="4.6" fill="#fff4d6"/>
+  </symbol>
+
+  <!-- B: Beyond the window. A frame left open; the light sits in the gap. -->
+  <symbol id="mark-b" viewBox="0 0 64 64">
+    <path d="M37 11 H 22 A 11 11 0 0 0 11 22 V 42 A 11 11 0 0 0 22 53 H 42 A 11 11 0 0 0 53 42 V 27" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
+    <circle cx="47" cy="17" r="13" fill="url(#glow)"/>
+    <circle cx="47" cy="17" r="5.4" fill="#fff4d6"/>
+  </symbol>
+
+  <!-- C: Presence. The core with one orbit and one connection. -->
+  <symbol id="mark-c" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="21" fill="none" stroke="currentColor" stroke-width="3" opacity=".55"/>
+    <circle cx="32" cy="32" r="15" fill="url(#glow)"/>
+    <circle cx="32" cy="32" r="6.5" fill="#fff4d6"/>
+    <circle cx="46.8" cy="17.2" r="3.6" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<h1>SALEM — logo exploration</h1>
+<p class="sub">Three marks, each tested large, as a lockup, at favicon sizes, as an app icon and on light paper.</p>
+
+<!-- Option rows -->
+<script>
+  const opts = [
+    ['a', 'A — Thread', 'An S drawn as one continuous line that passes through the light. Context that runs through everything, held together at the core. Doubles as a monogram.'],
+    ['b', 'B — Beyond the window', 'A rounded frame, the shape of an app window, left open at one corner. The light sits in the gap: AI that lives beyond the chat window.'],
+    ['c', 'C — Presence', 'The SALEM Core reduced to its essentials: the light, one orbit and one connection. Closest to the animated hero.'],
+  ];
+  const sizes = [16, 24, 32, 48];
+  for (const [id, name, idea] of opts) {
+    const use = (s, color = 'var(--text)') => `<svg width="${s}" height="${s}" style="color:${color}"><use href="#mark-${id}"/></svg>`;
+    document.body.insertAdjacentHTML('beforeend', `
+      <section class="opt">
+        <div><div class="name">${name}</div><div class="idea">${idea}</div></div>
+        <div class="big">
+          ${use(200)}
+          <div class="lockup" style="margin-top:28px">${use(44)}<span class="word">SALEM</span></div>
+        </div>
+        <div>
+          <div class="small-row">${sizes.map(s => `<div>${use(s)}<span>${s}</span></div>`).join('')}</div>
+          <div class="app">${use(64)}</div>
+        </div>
+        <div class="light">
+          ${use(96, 'var(--ink)')}
+          <div class="lockup">${use(30, 'var(--ink)')}<span class="word" style="font-size:20px">SALEM</span></div>
+        </div>
+      </section>`);
+  }
+</script>
+</body>
+</html>

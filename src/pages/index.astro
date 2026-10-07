@@ -3,6 +3,8 @@ import Base from '../layouts/Base.astro';
 import Core from '../components/Core.astro';
 import World from '../components/World.astro';
 import Intro from '../components/Intro.astro';
+import Today from '../components/Today.astro';
+import Logo from '../components/Logo.astro';
 
 type Status = 'running' | 'building' | 'exploring';
 const statusLabel: Record<Status, string> = {
@@ -47,7 +49,7 @@ const principles = [
   <Intro />
 
   <header class="top wrap">
-    <a href="/" class="wordmark" aria-label="SALEM home">SALEM</a>
+    <a href="/" class="wordmark" aria-label="SALEM home"><Logo /></a>
     <nav aria-label="Primary">
       <a href="#world">World</a>
       <a href="#architecture">Architecture</a>
@@ -58,20 +60,37 @@ const principles = [
 
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="stage"><span class="stage-dot" aria-hidden="true"></span>Early stage, building in public</p>
-        <h1 id="hero-title">One intelligence.<br />Everywhere you are.</h1>
-        <p class="lede">
-          SALEM is a persistent personal intelligence. It understands your digital world and acts across your tools,
-          devices and services.
-        </p>
-        <p class="lede-2">AI that lives beyond the chat window.</p>
-        <div class="ctas">
-          <a class="btn btn-primary" href="#idea">Read the idea</a>
-          <a class="btn" href="#architecture">See the architecture</a>
+      <p class="stage"><span class="stage-dot" aria-hidden="true"></span>Early stage, building in public</p>
+      <h1 id="hero-title">One intelligence.<br />Everywhere you are.</h1>
+      <div class="hero-body">
+        <div>
+          <p class="lede">
+            SALEM is a persistent personal intelligence. It understands your digital world and acts across your tools,
+            devices and services.
+          </p>
+          <p class="lede-2">AI that lives beyond the chat window.</p>
+          <div class="ctas">
+            <a class="btn btn-primary" href="#today">See it today</a>
+            <a class="btn" href="#architecture">See the architecture</a>
+          </div>
         </div>
+        <Core class="hero-core" />
       </div>
-      <Core class="hero-core" />
+    </section>
+
+    <section id="today" class="section wrap split" aria-labelledby="today-title">
+      <div>
+        <h2 id="today-title">It speaks first.</h2>
+        <div class="prose">
+          <p>
+            Today SALEM runs as a coordinator you reach from a messaging app. It watches the work and services it is
+            connected to, tells you what changed, and keeps your task inbox in order.
+          </p>
+          <p>The rest of this page is where it is going. This part already works, in the founder's own setup.</p>
+        </div>
+        <p class="status-line"><span class="status status-running">Running today</span> Illustrative conversation. Real ones stay private.</p>
+      </div>
+      <Today />
     </section>
 
     <section id="idea" class="section wrap split" aria-labelledby="idea-title">
@@ -94,16 +113,18 @@ const principles = [
       </div>
     </section>
 
-    <section id="world" class="section wrap" aria-labelledby="world-title">
-      <div class="section-head">
-        <h2 id="world-title">An intelligence that understands your world, and shows you what it knows.</h2>
-        <p class="status-line"><span class="status status-exploring">Exploring</span> Illustrative example with fictional data.</p>
+    <section id="world" class="band" aria-labelledby="world-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="world-title">An intelligence that understands your world, and shows you what it knows.</h2>
+          <p class="status-line"><span class="status status-exploring">Exploring</span> Illustrative example with fictional data.</p>
+        </div>
+        <p class="prose intro-p">
+          SALEM keeps a navigable map of your digital world. Ask what it knows about a project, what changed since
+          yesterday, or why it acted. Then correct it, or ask it to forget.
+        </p>
+        <World />
       </div>
-      <p class="prose intro-p">
-        SALEM keeps a navigable map of your digital world. Ask what it knows about a project, what changed since
-        yesterday, or why it acted. Then correct it, or ask it to forget.
-      </p>
-      <World />
     </section>
 
     <section class="section wrap" aria-labelledby="route-title">
@@ -124,27 +145,15 @@ const principles = [
           </div>
         ))}
       </dl>
-    </section>
-
-    <section class="section wrap" aria-labelledby="act-title">
-      <h2 id="act-title">Understanding is useful. Acting is better.</h2>
-      <p class="prose intro-p">
-        Capabilities are added as layers, each with its own permissions. Running today means it works in the founder's
-        own setup, not that it is available to others yet.
+      <p class="note">
+        <strong>Exploring Claude as a reasoning layer.</strong> SALEM is evaluating Claude for complex reasoning,
+        coordination between agents, tool use through MCP, and code and infrastructure workflows, while staying
+        multi-model by design.
       </p>
-      <ul class="layers">
-        {layers.map((l) => (
-          <li>
-            <h3>{l.name}</h3>
-            <p>{l.detail}</p>
-            <span class={`status status-${l.status}`}>{statusLabel[l.status]}</span>
-          </li>
-        ))}
-      </ul>
     </section>
 
     <section id="architecture" class="section wrap" aria-labelledby="arch-title">
-      <h2 id="arch-title">Architecture</h2>
+      <h2 id="arch-title">Understanding is useful. Acting is better.</h2>
       <p class="prose intro-p">
         SALEM sits above models, agents and tools. Any of them can be replaced without SALEM losing what it knows.
       </p>
@@ -166,16 +175,21 @@ const principles = [
           <div><strong>Cloud</strong><span>Frontier models and external services. For capability and reach.</span></div>
         </div>
       </div>
-    </section>
 
-    <section class="section wrap split" aria-labelledby="claude-title">
-      <h2 id="claude-title">Exploring Claude as a reasoning layer.</h2>
-      <div class="prose">
-        <p>
-          SALEM is evaluating Claude for complex reasoning, coordination between agents, tool use through MCP, and
-          code and infrastructure workflows, while staying multi-model by design.
-        </p>
-      </div>
+      <h3 class="sub">What it can reach</h3>
+      <p class="prose sub-p">
+        Each capability is a layer with its own permissions. Running today means it works in the founder's own setup,
+        not that it is available to others yet.
+      </p>
+      <ul class="layers">
+        {layers.map((l) => (
+          <li>
+            <h4>{l.name}</h4>
+            <p>{l.detail}</p>
+            <span class={`status status-${l.status}`}>{statusLabel[l.status]}</span>
+          </li>
+        ))}
+      </ul>
     </section>
 
     <section id="roadmap" class="section wrap" aria-labelledby="roadmap-title">
@@ -223,7 +237,7 @@ const principles = [
 
   <footer class="foot wrap">
     <div>
-      <p class="wordmark">SALEM</p>
+      <p class="wordmark"><Logo size={20} /></p>
       <p class="foot-tag">One intelligence. Everywhere you are.</p>
     </div>
     <nav aria-label="Footer">
@@ -244,10 +258,9 @@ const principles = [
   }
   .wordmark {
     margin: 0;
-    font-weight: 500;
-    letter-spacing: 0.45em;
     text-decoration: none;
     font-size: 0.95rem;
+    display: inline-flex;
   }
   .top nav {
     display: flex;
@@ -255,15 +268,13 @@ const principles = [
     font-size: 0.9375rem;
   }
   .top nav a,
-  .foot nav a,
-  .links a {
+  .foot nav a {
     color: var(--muted);
     text-decoration: none;
     transition: color 0.2s;
   }
   .top nav a:hover,
-  .foot nav a:hover,
-  .links a:hover {
+  .foot nav a:hover {
     color: var(--text);
   }
   @media (max-width: 640px) {
@@ -272,33 +283,14 @@ const principles = [
     }
   }
 
-  /* Hero */
+  /* Hero: headline across the full width, Core beside the body copy */
   .hero {
-    display: grid;
-    gap: 2rem;
-    align-items: center;
-    min-height: min(52rem, calc(100svh - 5rem));
-    padding-block: 2rem 4rem;
-  }
-  @media (min-width: 900px) {
-    .hero {
-      grid-template-columns: 1.15fr 1fr;
-      gap: 3rem;
-    }
-  }
-  .hero :global(.hero-core) {
-    max-width: 34rem;
-    justify-self: center;
-  }
-  @media (max-width: 899px) {
-    .hero :global(.hero-core) {
-      max-width: 20rem;
-    }
+    padding-block: clamp(2.5rem, 7vw, 5rem) 3rem;
   }
   .stage {
     color: var(--muted);
     font-size: 0.9375rem;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
   }
   .stage-dot {
     display: inline-block;
@@ -310,15 +302,38 @@ const principles = [
     box-shadow: 0 0 10px var(--lamp);
   }
   h1 {
-    font-size: clamp(2.75rem, 6.4vw, 5.25rem);
+    font-size: clamp(2.6rem, 7.2vw, 6rem);
     font-weight: 620;
     letter-spacing: -0.04em;
+    line-height: 0.98;
+  }
+  .hero-body {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .hero-body {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    .hero-body :global(.hero-core) {
+      margin-top: -2rem;
+    }
+  }
+  .hero-body :global(.hero-core) {
+    max-width: 30rem;
+    justify-self: center;
+  }
+  @media (max-width: 899px) {
+    .hero-body :global(.hero-core) {
+      max-width: 22rem;
+    }
   }
   .lede {
-    margin-top: 1.75rem;
+    margin-top: 2rem;
     font-size: clamp(1.125rem, 1.6vw, 1.3rem);
-    max-width: 34rem;
-    color: var(--text);
+    max-width: 32rem;
   }
   .lede-2 {
     margin-top: 0.75rem;
@@ -329,21 +344,7 @@ const principles = [
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2.5rem;
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.875rem;
-    padding: 0 1.4rem;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    text-decoration: none;
-    font-weight: 500;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .btn:hover {
-    border-color: var(--muted);
+    margin-top: 2.25rem;
   }
   .btn-primary {
     background: var(--lamp);
@@ -359,13 +360,14 @@ const principles = [
   .section {
     padding-top: var(--section);
   }
-  .section h2 {
+  h2 {
     font-size: clamp(2rem, 4.2vw, 3.25rem);
     max-width: 20ch;
   }
   .split {
     display: grid;
-    gap: 2rem;
+    gap: 2.5rem;
+    align-items: start;
   }
   @media (min-width: 900px) {
     .split {
@@ -379,6 +381,12 @@ const principles = [
   }
   .prose p + p {
     margin-top: 1.1rem;
+  }
+  h2 + .prose {
+    margin-top: 1.5rem;
+  }
+  .split > h2 + .prose {
+    margin-top: 0;
   }
   .intro-p {
     margin-top: 1.5rem;
@@ -396,33 +404,16 @@ const principles = [
     font-size: 0.9375rem;
     max-width: 24rem;
   }
+  #today .status-line {
+    margin-top: 2rem;
+  }
 
-  /* Status: label text plus shape, never colour alone */
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--text);
-    white-space: nowrap;
-    margin-right: 0.5rem;
-  }
-  .status::before {
-    content: '';
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    box-sizing: border-box;
-  }
-  .status-running::before {
-    background: var(--lamp);
-  }
-  .status-building::before {
-    border: 1.5px solid var(--lamp);
-    background: linear-gradient(90deg, var(--lamp) 50%, transparent 50%);
-  }
-  .status-exploring::before {
-    border: 1.5px dashed var(--muted);
+  /* World band: the page's second visual moment */
+  .band {
+    margin-top: var(--section);
+    padding-block: clamp(4rem, 9vw, 7rem);
+    background: var(--coal);
+    border-block: 1px solid var(--line);
   }
 
   /* Flow */
@@ -430,8 +421,6 @@ const principles = [
     list-style: none;
     margin: 2.5rem 0 0;
     padding: 0;
-    display: grid;
-    gap: 0;
   }
   .flow li {
     position: relative;
@@ -504,43 +493,20 @@ const principles = [
     color: var(--muted);
     font-size: 0.9375rem;
   }
-
-  /* Layers */
-  .layers {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 2.5rem 3rem;
-  }
-  @media (min-width: 700px) {
-    .layers {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (min-width: 1000px) {
-    .layers {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  .layers li {
-    display: grid;
-    gap: 0.5rem;
-    align-content: start;
-  }
-  .layers h3 {
-    font-size: 1.25rem;
-    letter-spacing: -0.02em;
-  }
-  .layers p {
+  .note {
+    margin-top: 2.5rem;
+    max-width: 44rem;
     color: var(--muted);
+  }
+  .note strong {
+    color: var(--text);
+    font-weight: 600;
   }
 
   /* Architecture */
   .arch {
     display: grid;
     gap: 1.25rem;
-    position: relative;
   }
   .arch > * {
     position: relative;
@@ -617,6 +583,47 @@ const principles = [
       border-radius: 10px;
     }
   }
+  .sub {
+    margin-top: 5rem;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+  .sub-p {
+    margin-top: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Layers */
+  .layers {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 2.5rem 3rem;
+  }
+  @media (min-width: 700px) {
+    .layers {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .layers {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .layers li {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+  }
+  .layers h4 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .layers p {
+    color: var(--muted);
+  }
 
   /* Roadmap */
   .roadmap {
@@ -690,6 +697,9 @@ const principles = [
     text-decoration: underline;
     text-decoration-color: var(--line);
     text-underline-offset: 4px;
+  }
+  .links a:hover {
+    text-decoration-color: var(--text);
   }
 
   /* Footer */
