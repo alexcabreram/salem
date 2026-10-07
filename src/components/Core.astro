@@ -114,9 +114,29 @@ const { class: className } = Astro.props;
       return n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}` : n[0];
     }
 
+    // The Core leans gently toward the pointer; satellites follow with less.
+    let lean = { x: 0, y: 0 };
+    let leanTo = { x: 0, y: 0 };
+    if (window.matchMedia('(pointer: fine)').matches) {
+      window.addEventListener('pointermove', (e) => {
+        const r = canvas.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+        const dy = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+        leanTo = { x: Math.max(-1, Math.min(1, dx * 2)), y: Math.max(-1, Math.min(1, dy * 2)) };
+      });
+    }
+
+    function center() {
+      const s = Math.min(w, h);
+      return [w / 2 + lean.x * s * 0.035, h / 2 + lean.y * s * 0.035];
+    }
+
     function pos(n: Node) {
       const s = Math.min(w, h);
-      return [w / 2 + Math.cos(n.a) * n.r * s, h / 2 + Math.sin(n.a) * n.r * s];
+      return [
+        w / 2 + lean.x * s * 0.015 + Math.cos(n.a) * n.r * s,
+        h / 2 + lean.y * s * 0.015 + Math.sin(n.a) * n.r * s,
+      ];
     }
 
     function rgba(hex: string, a: number) {
@@ -127,8 +147,7 @@ const { class: className } = Astro.props;
     function draw(now: number) {
       const t = now / 1000;
       const s = Math.min(w, h);
-      const cx = w / 2;
-      const cy = h / 2;
+      const [cx, cy] = center();
       ctx!.clearRect(0, 0, w, h);
 
       const active = new Set(pulses.map((p) => p.node));
@@ -214,6 +233,8 @@ const { class: className } = Astro.props;
     }
 
     function step(now: number, dt: number) {
+      lean.x += (leanTo.x - lean.x) * Math.min(1, dt * 3);
+      lean.y += (leanTo.y - lean.y) * Math.min(1, dt * 3);
       for (const n of nodes) {
         n.a += n.speed * dt;
         n.glow = Math.max(0, n.glow - dt * 0.7);
@@ -245,6 +266,10 @@ const { class: className } = Astro.props;
         }
       }
     }
+
+    window.addEventListener('salem:delegate', () => {
+      if (phase === 0 && !reduce) startMission(performance.now());
+    });
 
     resize();
     new ResizeObserver(() => {

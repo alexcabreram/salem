@@ -1,9 +1,33 @@
 ---
-// One short opening sequence per session. Skippable; never shown with reduced motion or without JS.
+// Opening sequence, once per session: the window draws itself, the light
+// steps outside it, then the name and a greeting. Skippable; never shown
+// with reduced motion or without JS.
 ---
 
 <div class="intro" data-intro aria-hidden="true">
-  <p class="intro-mark">
+  <svg class="intro-mark" viewBox="0 0 64 64" width="96" height="96">
+    <defs>
+      <radialGradient id="intro-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff4d6" stop-opacity=".95" />
+        <stop offset=".35" stop-color="#e8c46a" stop-opacity=".45" />
+        <stop offset="1" stop-color="#e8c46a" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <path
+      class="intro-frame"
+      pathLength="1"
+      d="M36 11 H 22 A 11 11 0 0 0 11 22 V 42 A 11 11 0 0 0 22 53 H 42 A 11 11 0 0 0 53 42 V 28"
+      fill="none"
+      stroke="#e9e7e2"
+      stroke-width="3.6"
+      stroke-linecap="round"
+    />
+    <g class="intro-light">
+      <circle cx="48" cy="16" r="14" fill="url(#intro-glow)" />
+      <circle cx="48" cy="16" r="5.4" fill="#fff4d6" />
+    </g>
+  </svg>
+  <p class="intro-word">
     {'SALEM'.split('').map((c, i) => <span style={`--i:${i}`}>{c}</span>)}
   </p>
   <p class="intro-greeting" data-greeting>Good evening.</p>
@@ -20,33 +44,47 @@
     z-index: 50;
     display: grid;
     place-content: center;
-    gap: 1.75rem;
     justify-items: center;
+    gap: 1.5rem;
     background: var(--night);
-    transition: opacity 0.7s ease, visibility 0.7s;
+    transition: opacity 0.8s var(--ease-out), visibility 0.8s;
   }
   :global(html.intro-done) .intro {
     opacity: 0;
     visibility: hidden;
   }
   .intro-mark {
+    overflow: visible;
+  }
+  .intro-frame {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 1s var(--ease-out) 0.15s forwards;
+  }
+  .intro-light {
+    transform-origin: 48px 16px;
+    opacity: 0;
+    transform: translate(-14px, 14px) scale(0.4);
+    animation: escape 0.9s var(--ease-out) 0.95s forwards;
+  }
+  .intro-word {
     margin: 0;
-    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
     font-weight: 500;
     letter-spacing: 0.6em;
     margin-right: -0.6em;
   }
-  .intro-mark span {
+  .intro-word span {
     display: inline-block;
     opacity: 0;
-    animation: letter 0.6s ease forwards;
-    animation-delay: calc(var(--i) * 0.12s + 0.15s);
+    animation: letter 0.7s var(--ease-out) forwards;
+    animation-delay: calc(var(--i) * 0.07s + 1.45s);
   }
   .intro-greeting {
     margin: 0;
     color: var(--muted);
     opacity: 0;
-    animation: letter 0.8s ease 1.1s forwards;
+    animation: letter 0.8s var(--ease-out) 2s forwards;
   }
   .intro-skip {
     position: fixed;
@@ -64,6 +102,17 @@
   .intro-skip:hover {
     color: var(--text);
     border-color: var(--muted);
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes escape {
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
   @keyframes letter {
     from {
@@ -94,9 +143,9 @@
       try {
         sessionStorage.setItem('salem-intro', '1');
       } catch {}
-      window.setTimeout(() => html.classList.remove('intro', 'intro-done'), 800);
+      window.setTimeout(() => html.classList.remove('intro', 'intro-done'), 900);
     };
-    window.setTimeout(finish, 2600);
+    window.setTimeout(finish, 3100);
     root.addEventListener('click', finish);
     window.addEventListener('keydown', finish, { once: true });
   }

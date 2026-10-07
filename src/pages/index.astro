@@ -43,6 +43,8 @@ const principles = [
   { name: 'User-controlled', text: 'You can see what SALEM knows and what it can reach.' },
   { name: 'Extensible', text: 'Tools, agents and providers are modules, not foundations.' },
 ];
+
+const headline = [['One', 'intelligence.'], ['Everywhere', 'you', 'are.']];
 ---
 
 <Base>
@@ -59,10 +61,19 @@ const principles = [
   </header>
 
   <main id="main">
-    <section class="hero wrap" aria-labelledby="hero-title">
-      <p class="stage"><span class="stage-dot" aria-hidden="true"></span>Early stage, building in public</p>
-      <h1 id="hero-title">One intelligence.<br />Everywhere you are.</h1>
-      <div class="hero-body">
+    <section class="hero wrap" aria-labelledby="hero-title" data-hero>
+      <div class="hero-glow" aria-hidden="true"></div>
+      <p class="stage enter" style="--d:0"><span class="stage-dot" aria-hidden="true"></span>Early stage, building in public</p>
+      <h1 id="hero-title" aria-label="One intelligence. Everywhere you are.">
+        {headline.map((line, l) => (
+          <span class="line" aria-hidden="true">
+            {line.map((w, i) => (
+              <span class="w" style={`--d:${1 + l * 2 + i}`}>{w}</span>
+            ))}
+          </span>
+        ))}
+      </h1>
+      <div class="hero-body enter" style="--d:6">
         <div>
           <p class="lede">
             SALEM is a persistent personal intelligence. It understands your digital world and acts across your tools,
@@ -70,7 +81,7 @@ const principles = [
           </p>
           <p class="lede-2">AI that lives beyond the chat window.</p>
           <div class="ctas">
-            <a class="btn btn-primary" href="#today">See it today</a>
+            <a class="btn btn-primary" href="#today" data-delegate>See it today</a>
             <a class="btn" href="#architecture">See the architecture</a>
           </div>
         </div>
@@ -136,9 +147,9 @@ const principles = [
         SALEM orchestrates models instead of locking your world to one provider. Models will change. The intelligence
         layer should not.
       </p>
-      <dl class="routes">
+      <dl class="routes" data-reveal>
         {routes.map((r) => (
-          <div class="route">
+          <div class="route" style={`--r:${routes.indexOf(r)}`}>
             <dt>{r.task}</dt>
             <dd class="route-to">{r.to}</dd>
             <dd class="route-why">{r.why}</dd>
@@ -157,7 +168,7 @@ const principles = [
       <p class="prose intro-p">
         SALEM sits above models, agents and tools. Any of them can be replaced without SALEM losing what it knows.
       </p>
-      <div class="arch" role="img" aria-label="Interfaces connect to SALEM. SALEM holds context and orchestration, and uses models, agents and tools, which run on local and cloud systems.">
+      <div class="arch" data-reveal role="img" aria-label="Interfaces connect to SALEM. SALEM holds context and orchestration, and uses models, agents and tools, which run on local and cloud systems.">
         <div class="arch-row arch-thin">
           <span>Messaging</span><span>Web</span><span>Voice</span><span>Desktop</span>
         </div>
@@ -249,6 +260,27 @@ const principles = [
   </footer>
 </Base>
 
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const glow = hero?.querySelector<HTMLElement>('.hero-glow');
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (hero && glow && !still && window.matchMedia('(pointer: fine)').matches) {
+    let raf = 0;
+    hero.addEventListener('pointermove', (e) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const r = glow.getBoundingClientRect();
+        glow.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        glow.style.setProperty('--my', `${e.clientY - r.top}px`);
+      });
+    });
+  }
+  // Hovering the primary action makes the Core delegate, as if asked something.
+  document.querySelectorAll('[data-delegate]').forEach((el) =>
+    el.addEventListener('pointerenter', () => window.dispatchEvent(new CustomEvent('salem:delegate'))),
+  );
+</script>
+
 <style>
   .top {
     display: flex;
@@ -285,7 +317,72 @@ const principles = [
 
   /* Hero: headline across the full width, Core beside the body copy */
   .hero {
+    position: relative;
     padding-block: clamp(2.5rem, 7vw, 5rem) 3rem;
+  }
+  .hero > :not(.hero-glow) {
+    position: relative;
+  }
+  /* A faint lamp glow that follows the pointer */
+  .hero-glow {
+    position: absolute;
+    inset: -20% -30%;
+    pointer-events: none;
+    background: radial-gradient(
+      600px circle at var(--mx, 70%) var(--my, 55%),
+      rgba(232, 196, 106, 0.07),
+      transparent 60%
+    );
+    transition: background-position 0.2s;
+  }
+  .line {
+    display: block;
+  }
+  .w {
+    display: inline-block;
+    margin-right: 0.22em;
+  }
+  .w:last-child {
+    margin-right: 0;
+  }
+
+  /* Entrance: words resolve from blur, then the body follows.
+     While the intro plays, the sequence waits (delays do not elapse while paused). */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .w,
+    :global(html.js) .enter {
+      animation: resolve 1.1s var(--ease-out) both;
+      animation-delay: calc(var(--d) * 90ms + 120ms);
+    }
+    :global(html.js) .enter {
+      animation-name: rise;
+    }
+    :global(html.intro:not(.intro-done)) .w,
+    :global(html.intro:not(.intro-done)) .enter {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes resolve {
+    from {
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(0.18em);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: none;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
   .stage {
     color: var(--muted);
@@ -451,6 +548,51 @@ const principles = [
     color: var(--text);
     font-weight: 600;
   }
+  .flow {
+    position: relative;
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .flow::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.45rem;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(var(--lamp), rgba(232, 196, 106, 0.2));
+        transform-origin: top;
+        animation: fill linear both;
+        animation-timeline: view();
+        animation-range: entry 30% cover 55%;
+      }
+      .flow li:nth-child(2)::before {
+        animation: kindle linear both;
+        animation-timeline: view();
+        animation-range: entry 60% cover 50%;
+      }
+    }
+  }
+  @keyframes fill {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes kindle {
+    from {
+      background: var(--night);
+      border-color: var(--muted);
+      box-shadow: none;
+    }
+    to {
+      background: var(--lamp);
+      border-color: var(--lamp);
+      box-shadow: 0 0 12px var(--lamp);
+    }
+  }
 
   /* Routes */
   .routes {
@@ -493,6 +635,33 @@ const principles = [
     color: var(--muted);
     font-size: 0.9375rem;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .route-to::before {
+      width: 0;
+      transition: width 0.7s var(--ease-out);
+      transition-delay: calc(var(--r) * 0.32s + 0.15s);
+    }
+    :global(html.js) .route-to,
+    :global(html.js) .route-why {
+      opacity: 0.25;
+      filter: blur(3px);
+      transition:
+        opacity 0.6s var(--ease-out),
+        filter 0.6s var(--ease-out);
+      transition-delay: calc(var(--r) * 0.32s + 0.45s);
+    }
+    :global(html.js) .route-why {
+      transition-delay: calc(var(--r) * 0.32s + 0.6s);
+    }
+    .routes:global(.in) .route-to::before {
+      width: 1.5rem;
+    }
+    .routes:global(.in) .route-to,
+    .routes:global(.in) .route-why {
+      opacity: 1;
+      filter: none;
+    }
+  }
   .note {
     margin-top: 2.5rem;
     max-width: 44rem;
@@ -519,6 +688,60 @@ const principles = [
     height: 1.25rem;
     width: 1px;
     background: var(--line);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .arch > * + *::after {
+      content: '';
+      position: absolute;
+      left: calc(50% - 2.5px);
+      top: -1.25rem;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--lamp-hot);
+      box-shadow: 0 0 8px var(--lamp);
+      opacity: 0;
+      animation: flow-down 2.4s var(--ease-out) infinite paused;
+    }
+    .arch > :nth-child(3)::after {
+      animation-delay: 0.5s;
+    }
+    .arch > :nth-child(4)::after {
+      animation-delay: 1s;
+    }
+    .arch:global(.in) > *::after {
+      animation-play-state: running;
+    }
+    .arch:global(.in) .arch-core {
+      animation: breathe 2.4s ease-in-out 0.35s infinite;
+    }
+  }
+  @keyframes flow-down {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    15% {
+      opacity: 1;
+    }
+    45% {
+      opacity: 1;
+      transform: translateY(calc(1.25rem - 5px));
+    }
+    55%,
+    100% {
+      opacity: 0;
+      transform: translateY(calc(1.25rem - 5px));
+    }
+  }
+  @keyframes breathe {
+    0%,
+    100% {
+      box-shadow: 0 0 0 rgba(232, 196, 106, 0);
+    }
+    40% {
+      box-shadow: 0 0 28px rgba(232, 196, 106, 0.22);
+    }
   }
   .arch-row {
     display: grid;

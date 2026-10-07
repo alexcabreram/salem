@@ -24,7 +24,7 @@ const mission = [
 ];
 ---
 
-<div class="world" data-world>
+<div class="world" data-world data-reveal>
   <div class="graph">
     <svg viewBox="0 0 640 430" role="group" aria-label="Example map of what SALEM knows. Select an entity to see what it knows about it.">
       <g class="edges" aria-hidden="true">
@@ -38,10 +38,13 @@ const mission = [
           />
         ))}
       </g>
+      <circle class="spark" r="5" cx="0" cy="0" aria-hidden="true" data-spark />
       {nodes.map((n) => (
         <g
           class="node"
           data-node={n.id}
+          data-x={n.x}
+          data-y={n.y}
           data-knows={n.knows}
           data-label={n.label}
           tabindex="0"
@@ -114,6 +117,12 @@ const mission = [
   }
   .edges line.on {
     stroke: var(--lamp);
+  }
+  .spark {
+    fill: var(--lamp-hot);
+    opacity: 0;
+    filter: drop-shadow(0 0 6px var(--lamp));
+    pointer-events: none;
   }
   .node {
     cursor: pointer;
@@ -329,7 +338,34 @@ const mission = [
       if (sr) sr.textContent = state === 'done' ? 'Done' : state === 'working' ? 'In progress' : 'Pending';
     }
 
+    // A spark of light that travels from "You" along the edges to a node.
+    const spark = root.querySelector<SVGCircleElement>('[data-spark]');
+    function chain(id: string) {
+      const path: string[] = [];
+      for (let cur: string | undefined = id; cur; cur = parentOf.get(cur)) path.unshift(cur);
+      return path;
+    }
+    async function travel(id: string) {
+      if (!spark || reduce) return;
+      const pts = chain(id).map((n) => {
+        const g = byId(n)!;
+        return [Number(g.dataset.x), Number(g.dataset.y)];
+      });
+      const frames = pts.map(([x, y], i) => ({
+        transform: `translate(${x}px, ${y}px)`,
+        opacity: i === 0 || i === pts.length - 1 ? 0.2 : 1,
+      }));
+      frames[0].opacity = 0;
+      await spark.animate(frames, { duration: 260 * (pts.length - 1) + 200, easing: 'cubic-bezier(.5,0,.3,1)' }).finished;
+    }
+
+    let ran = false;
+    root.addEventListener('reveal', () => {
+      if (!ran && !reduce) window.setTimeout(() => run?.click(), 600);
+    });
+
     run?.addEventListener('click', async () => {
+      ran = true;
       run.disabled = true;
       run.textContent = 'Running';
       nodes.forEach((n) => {
@@ -346,10 +382,11 @@ const mission = [
       for (const li of steps) {
         const id = li.dataset.step!;
         setStep(li, 'working');
-        byId(id)?.classList.add('working');
         lit.add(id);
         highlightEdges(lit);
-        await wait(850);
+        await travel(id);
+        byId(id)?.classList.add('working');
+        await wait(350);
         setStep(li, 'done');
       }
       await wait(300);

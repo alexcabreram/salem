@@ -44,9 +44,10 @@ const ogImage = new URL('/og.png', Astro.site);
     <script is:inline>
       // Intro plays once per session, only with JS and without reduced motion.
       (function () {
+        document.documentElement.classList.add('js');
         try {
           var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          var seen = sessionStorage.getItem('salem-intro');
+          var seen = sessionStorage.getItem('salem-intro') || location.hash;
           if (!reduce && !seen) document.documentElement.classList.add('intro');
         } catch (e) {}
       })();
@@ -55,5 +56,21 @@ const ogImage = new URL('/og.png', Astro.site);
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <slot />
+    <script>
+      // Marks [data-reveal] elements with .in the first time they are mostly in view.
+      // Components key their entrance animations off that class.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target.classList.add('in');
+            e.target.dispatchEvent(new CustomEvent('reveal'));
+            io.unobserve(e.target);
+          }
+        },
+        { threshold: 0.35 },
+      );
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>

@@ -11,10 +11,11 @@ const messages = [
 ];
 ---
 
-<div class="today">
+<div class="today" data-today data-reveal>
   <ol class="thread" aria-label="Illustrative conversation with SALEM">
     {messages.map((m) => (
-      <li class:list={['msg', `msg-${m.from}`]}>
+      <li class:list={['msg', `msg-${m.from}`]} data-from={m.from}>
+        <span class="typing" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="visually-hidden">{m.from === 'salem' ? 'SALEM' : 'You'}:</span>
         <p>{m.text}</p>
         <time>{m.time}</time>
@@ -36,6 +37,7 @@ const messages = [
     gap: 0.6rem;
   }
   .msg {
+    position: relative;
     max-width: 88%;
     padding: 0.75rem 1rem 0.55rem;
     border-radius: 16px;
@@ -60,8 +62,102 @@ const messages = [
   }
   .msg-you {
     justify-self: end;
-    background: transparent;
     border: 1px solid var(--line);
     border-bottom-right-radius: 4px;
   }
+
+  /* Typing indicator, drawn inside the slot the message will occupy so nothing shifts */
+  .typing {
+    display: none;
+  }
+
+  /* Sequenced arrival. Slots keep their size while hidden: no layout shift. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .msg {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+      transform-origin: left bottom;
+      transition:
+        opacity 0.45s var(--ease-out),
+        transform 0.55s var(--ease-out),
+        background-color 0.3s;
+    }
+    :global(html.js) .msg-you {
+      transform-origin: right bottom;
+    }
+    :global(html.js) .msg.typing-now {
+      opacity: 1;
+      transform: none;
+      background: transparent;
+    }
+    .msg.typing-now > :not(.typing) {
+      visibility: hidden;
+    }
+    .msg.typing-now .typing {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      display: inline-flex;
+      gap: 4px;
+      padding: 0.8rem 0.95rem;
+      background: var(--coal-2);
+      border-radius: 16px 16px 16px 4px;
+    }
+    .typing i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: dot 1s ease-in-out infinite;
+    }
+    .typing i:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    .typing i:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+    :global(html.js) .msg.shown {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes dot {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+  }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-today]').forEach((root) => {
+    const items = [...root.querySelectorAll<HTMLLIElement>('.msg')];
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still) return;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    let played = false;
+    async function play() {
+      if (played) return;
+      played = true;
+      for (const li of items) {
+        if (li.dataset.from === 'salem') {
+          li.classList.add('typing-now');
+          await wait(900);
+          li.classList.remove('typing-now');
+        } else {
+          await wait(500);
+        }
+        li.classList.add('shown');
+        await wait(450);
+      }
+    }
+    root.addEventListener('reveal', play);
+    if (root.classList.contains('in')) play();
+  });
+</script>
