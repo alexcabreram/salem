@@ -72,4 +72,4 @@ Built with [Astro](https://astro.build). Deployed on Cloudflare Pages.
 
 ## Contact
 
-Alex Cabrera · [hello@getsalem.dev](mailto:hello@getsalem.dev)
+Alex Cabrera · [hello@getsalem.dev](mailto:hello@getsalem.dev) · [LinkedIn](https://www.linkedin.com/in/alexcabreram/)
