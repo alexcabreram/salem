@@ -1,0 +1,165 @@
+---
+// Illustrative SALEM World. All entities are fictional.
+const nodes = [
+  { id: 'you', label: 'You', x: 320, y: 215, r: 9, knows: 'Your preferences, routines and the people you work with. Only what you have allowed it to keep.' },
+  { id: 'atlas', label: 'Project Atlas', x: 150, y: 110, r: 7, parent: 'you', knows: 'Open tasks, the decision log and who is involved. Since yesterday: two changes merged, one question waiting on you.' },
+  { id: 'repo', label: 'Repository', x: 58, y: 42, r: 5, parent: 'atlas', knows: 'Latest changes, a failing check on the main branch and one review pending.' },
+  { id: 'notes', label: 'Design notes', x: 52, y: 196, r: 5, parent: 'atlas', knows: 'The last three architecture decisions and the reasons behind them.' },
+  { id: 'home', label: 'Home', x: 492, y: 110, r: 7, parent: 'you', knows: 'Which devices are online and what usually stays on at night.' },
+  { id: 'thermo', label: 'Thermostat', x: 590, y: 40, r: 5, parent: 'home', knows: 'The current schedule. It can switch to away mode, and asks you first.' },
+  { id: 'laptop', label: 'Laptop', x: 596, y: 196, r: 5, parent: 'home', knows: 'Last seen this morning. Backup completed overnight.' },
+  { id: 'trip', label: 'Trip to Lisbon', x: 320, y: 352, r: 7, parent: 'you', knows: 'Dates, bookings and what needs to be ready before you leave.' },
+  { id: 'cal', label: 'Calendar', x: 170, y: 392, r: 5, parent: 'trip', knows: 'Two meetings overlap with the trip. Neither has been moved yet.' },
+  { id: 'flight', label: 'Flights', x: 470, y: 392, r: 5, parent: 'trip', knows: 'Outbound Tuesday morning. Check-in opens Monday.' },
+];
+const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+---
+
+<div class="world" data-world>
+  <svg viewBox="0 0 640 430" role="group" aria-label="Example map of what SALEM knows. Select an entity to see what it knows about it.">
+    <g class="edges" aria-hidden="true">
+      {nodes.filter((n) => n.parent).map((n) => (
+        <line
+          x1={byId[n.parent!].x}
+          y1={byId[n.parent!].y}
+          x2={n.x}
+          y2={n.y}
+          data-edge={`${n.parent}:${n.id}`}
+        />
+      ))}
+    </g>
+    {nodes.map((n) => (
+      <g
+        class="node"
+        data-node={n.id}
+        data-knows={n.knows}
+        data-label={n.label}
+        tabindex="0"
+        role="button"
+        aria-pressed={n.id === 'atlas' ? 'true' : 'false'}
+        aria-label={n.label}
+      >
+        <circle class="hit" cx={n.x} cy={n.y} r="26" />
+        <circle class="dot" cx={n.x} cy={n.y} r={n.r} />
+        <text x={n.x} y={n.y + (n.y > 300 ? 28 : -16)} text-anchor="middle">{n.label}</text>
+      </g>
+    ))}
+  </svg>
+
+  <div class="readout" aria-live="polite">
+    <p class="readout-q">What does SALEM know about <strong data-world-label>Project Atlas</strong>?</p>
+    <p class="readout-a" data-world-knows>{byId.atlas.knows}</p>
+  </div>
+</div>
+
+<style>
+  .world {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .world {
+      grid-template-columns: 1.5fr 1fr;
+      gap: 3rem;
+    }
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .edges line {
+    stroke: var(--line);
+    stroke-width: 1;
+    transition: stroke 0.25s;
+  }
+  .edges line.on {
+    stroke: var(--lamp);
+  }
+  .node {
+    cursor: pointer;
+    outline: none;
+  }
+  .hit {
+    fill: transparent;
+  }
+  .dot {
+    fill: var(--text);
+    opacity: 0.75;
+    transition: fill 0.25s, opacity 0.25s;
+  }
+  .node text {
+    fill: var(--muted);
+    font-family: var(--sans);
+    font-size: 15px;
+    transition: fill 0.25s;
+  }
+  @media (max-width: 600px) {
+    .node text {
+      font-size: 21px;
+    }
+  }
+  .node:hover .dot,
+  .node[aria-pressed='true'] .dot {
+    fill: var(--lamp);
+    opacity: 1;
+  }
+  .node:hover text,
+  .node[aria-pressed='true'] text {
+    fill: var(--text);
+  }
+  .node:focus-visible .hit {
+    stroke: var(--lamp);
+    stroke-width: 1.5;
+  }
+  .readout {
+    border-left: 2px solid var(--lamp);
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    max-width: 30rem;
+  }
+  .readout-q {
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .readout-q strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .readout-a {
+    font-size: 1.25rem;
+    line-height: 1.45;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-world]').forEach((root) => {
+    const label = root.querySelector('[data-world-label]')!;
+    const knows = root.querySelector('[data-world-knows]')!;
+    const nodes = [...root.querySelectorAll<SVGGElement>('[data-node]')];
+    const edges = [...root.querySelectorAll<SVGLineElement>('[data-edge]')];
+
+    function select(g: SVGGElement) {
+      const id = g.dataset.node!;
+      nodes.forEach((n) => n.setAttribute('aria-pressed', String(n === g)));
+      edges.forEach((e) => {
+        const [a, b] = e.dataset.edge!.split(':');
+        e.classList.toggle('on', a === id || b === id);
+      });
+      label.textContent = g.dataset.label!;
+      knows.textContent = g.dataset.knows!;
+    }
+
+    nodes.forEach((g) => {
+      g.addEventListener('click', () => select(g));
+      g.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          select(g);
+        }
+      });
+    });
+    const initial = nodes.find((n) => n.dataset.node === 'atlas');
+    if (initial) select(initial);
+  });
+</script>

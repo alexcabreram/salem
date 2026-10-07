@@ -1,0 +1,272 @@
+---
+// SALEM Core: the brand's living mark. It breathes while idle, sends pulses
+// out to its connections when it delegates, and gathers them back to synthesize.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<figure class:list={['core', className]} data-core>
+  <canvas
+    role="img"
+    aria-label="The SALEM Core: a point of light that sends pulses to surrounding nodes and gathers them back."
+  ></canvas>
+  <figcaption class="core-state" aria-hidden="true"><span data-core-state>Idle</span></figcaption>
+</figure>
+
+<style>
+  .core {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1;
+    width: 100%;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .core-state {
+    position: absolute;
+    left: 50%;
+    bottom: 4%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .core-state span::before {
+    content: '';
+    display: inline-block;
+    width: 0.45em;
+    height: 0.45em;
+    margin-right: 0.6em;
+    border-radius: 50%;
+    background: var(--lamp);
+    vertical-align: 0.12em;
+  }
+</style>
+
+<script>
+  type Node = { a: number; r: number; speed: number; size: number; glow: number };
+  type Pulse = { node: number; t: number; dir: 1 | -1 };
+
+  const STATES = ['Idle', 'Delegating', 'Acting', 'Synthesizing'] as const;
+
+  function initCore(root: HTMLElement) {
+    const canvas = root.querySelector('canvas')!;
+    const label = root.querySelector<HTMLElement>('[data-core-state]');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const css = getComputedStyle(document.documentElement);
+    const lamp = css.getPropertyValue('--lamp').trim() || '#e8c46a';
+    const hot = css.getPropertyValue('--lamp-hot').trim() || '#fff4d6';
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Satellites: models, agents, tools and devices around the core.
+    const nodes: Node[] = Array.from({ length: 9 }, (_, i) => ({
+      a: (i / 9) * Math.PI * 2 + (i % 2 ? 0.25 : -0.1),
+      r: i % 3 === 0 ? 0.42 : i % 3 === 1 ? 0.33 : 0.38,
+      speed: (i % 2 ? 1 : -1) * (0.012 + (i % 4) * 0.004),
+      size: i % 3 === 0 ? 3.2 : 2.4,
+      glow: 0,
+    }));
+
+    let pulses: Pulse[] = [];
+    let flare = 0;
+    let phase = 0; // index into STATES
+    let phaseAt = 0;
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = rect.width;
+      h = rect.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function setState(i: number, now: number) {
+      phase = i;
+      phaseAt = now;
+      if (label) label.textContent = STATES[i];
+    }
+
+    function startMission(now: number) {
+      const count = 2 + Math.floor(Math.random() * 3);
+      const picked = new Set<number>();
+      while (picked.size < count) picked.add(Math.floor(Math.random() * nodes.length));
+      pulses = [...picked].map((node) => ({ node, t: 0, dir: 1 }));
+      setState(1, now);
+    }
+
+    function pos(n: Node) {
+      const s = Math.min(w, h);
+      return [w / 2 + Math.cos(n.a) * n.r * s, h / 2 + Math.sin(n.a) * n.r * s];
+    }
+
+    function rgba(hex: string, a: number) {
+      const v = parseInt(hex.slice(1), 16);
+      return `rgba(${(v >> 16) & 255},${(v >> 8) & 255},${v & 255},${a})`;
+    }
+
+    function draw(now: number) {
+      const t = now / 1000;
+      const s = Math.min(w, h);
+      const cx = w / 2;
+      const cy = h / 2;
+      ctx!.clearRect(0, 0, w, h);
+
+      const active = new Set(pulses.map((p) => p.node));
+
+      // Connections
+      for (let i = 0; i < nodes.length; i++) {
+        const [x, y] = pos(nodes[i]);
+        const on = active.has(i);
+        ctx!.strokeStyle = rgba(lamp, on ? 0.32 : 0.07);
+        ctx!.lineWidth = on ? 1.2 : 1;
+        ctx!.beginPath();
+        ctx!.moveTo(cx, cy);
+        ctx!.lineTo(x, y);
+        ctx!.stroke();
+      }
+
+      // Pulses travelling along connections
+      for (const p of pulses) {
+        const [x, y] = pos(nodes[p.node]);
+        const k = p.dir === 1 ? p.t : 1 - p.t;
+        const px = cx + (x - cx) * k;
+        const py = cy + (y - cy) * k;
+        const g = ctx!.createRadialGradient(px, py, 0, px, py, 10);
+        g.addColorStop(0, rgba(hot, 0.95));
+        g.addColorStop(1, rgba(lamp, 0));
+        ctx!.fillStyle = g;
+        ctx!.beginPath();
+        ctx!.arc(px, py, 10, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+
+      // Satellites
+      for (const n of nodes) {
+        const [x, y] = pos(n);
+        if (n.glow > 0.01) {
+          const g = ctx!.createRadialGradient(x, y, 0, x, y, 22);
+          g.addColorStop(0, rgba(lamp, 0.45 * n.glow));
+          g.addColorStop(1, rgba(lamp, 0));
+          ctx!.fillStyle = g;
+          ctx!.beginPath();
+          ctx!.arc(x, y, 22, 0, Math.PI * 2);
+          ctx!.fill();
+        }
+        ctx!.fillStyle = n.glow > 0.2 ? rgba(hot, 0.6 + 0.4 * n.glow) : 'rgba(233,231,226,0.55)';
+        ctx!.beginPath();
+        ctx!.arc(x, y, n.size, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+
+      // Core: breathing light
+      const breath = reduce ? 0.5 : (Math.sin(t * 1.1) + 1) / 2;
+      const radius = s * (0.15 + breath * 0.02 + flare * 0.05);
+      const halo = ctx!.createRadialGradient(cx, cy, 0, cx, cy, radius);
+      halo.addColorStop(0, rgba(hot, 1));
+      halo.addColorStop(0.18, rgba(hot, 0.9));
+      halo.addColorStop(0.4, rgba(lamp, 0.35 + flare * 0.25));
+      halo.addColorStop(1, rgba(lamp, 0));
+      ctx!.fillStyle = halo;
+      ctx!.beginPath();
+      ctx!.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx!.fill();
+
+      // Quiet ring that expands while the core is thinking
+      ctx!.strokeStyle = rgba(lamp, 0.12 + breath * 0.08);
+      ctx!.lineWidth = 1;
+      ctx!.beginPath();
+      ctx!.arc(cx, cy, s * (0.21 + breath * 0.015), 0, Math.PI * 2);
+      ctx!.stroke();
+    }
+
+    function step(now: number, dt: number) {
+      for (const n of nodes) {
+        n.a += n.speed * dt;
+        n.glow = Math.max(0, n.glow - dt * 0.7);
+      }
+      flare = Math.max(0, flare - dt * 0.9);
+
+      const elapsed = (now - phaseAt) / 1000;
+      if (phase === 0 && elapsed > 2.6) startMission(now);
+
+      if (phase === 1 || phase === 3) {
+        let done = true;
+        for (const p of pulses) {
+          p.t = Math.min(1, p.t + dt * 1.1);
+          if (p.t < 1) done = false;
+        }
+        if (done && phase === 1) {
+          for (const p of pulses) nodes[p.node].glow = 1;
+          setState(2, now);
+        } else if (done && phase === 3) {
+          pulses = [];
+          flare = 1;
+          setState(0, now);
+        }
+      } else if (phase === 2) {
+        for (const p of pulses) nodes[p.node].glow = Math.max(nodes[p.node].glow, 0.9);
+        if (elapsed > 1.2) {
+          pulses = pulses.map((p) => ({ node: p.node, t: 0, dir: -1 }));
+          setState(3, now);
+        }
+      }
+    }
+
+    resize();
+    new ResizeObserver(() => {
+      resize();
+      if (reduce) draw(0);
+    }).observe(canvas);
+
+    if (reduce) {
+      draw(0);
+      if (label) label.textContent = 'Idle';
+      return;
+    }
+
+    let visible = true;
+    let frame = 0;
+    let last = performance.now();
+    phaseAt = last;
+
+    function loop(now: number) {
+      frame = 0;
+      if (!visible || document.hidden) return;
+      const dt = Math.min(0.05, Math.max(0, now - last) / 1000);
+      last = now;
+      step(now, dt);
+      draw(now);
+      frame = requestAnimationFrame(loop);
+    }
+    function kick() {
+      if (frame) return;
+      last = performance.now();
+      frame = requestAnimationFrame(loop);
+    }
+
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible) kick();
+    }).observe(canvas);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) kick();
+    });
+    kick();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-core]').forEach(initCore);
+</script>

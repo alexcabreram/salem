@@ -1,0 +1,715 @@
+---
+import Base from '../layouts/Base.astro';
+import Core from '../components/Core.astro';
+import World from '../components/World.astro';
+import Intro from '../components/Intro.astro';
+
+type Status = 'running' | 'building' | 'exploring';
+const statusLabel: Record<Status, string> = {
+  running: 'Running today',
+  building: 'In development',
+  exploring: 'Exploring',
+};
+
+const routes = [
+  { task: 'Private or personal data', to: 'Local model', why: 'Stays on hardware you own.' },
+  { task: 'Complex reasoning and planning', to: 'Claude', why: 'Frontier reasoning when the problem deserves it.' },
+  { task: 'Cloud and Microsoft workflows', to: 'Azure AI', why: 'Close to the services it works with.' },
+  { task: 'Writing and changing code', to: 'Coding agent', why: 'A specialist, supervised by SALEM.' },
+];
+
+const layers: { name: string; detail: string; status: Status }[] = [
+  { name: 'Messaging', detail: 'Talk to SALEM from the chat app you already use.', status: 'running' },
+  { name: 'Models', detail: 'Local and cloud models, selected per task by configuration.', status: 'running' },
+  { name: 'Tools', detail: 'MCP servers, APIs and command-line tools, with approvals for anything risky.', status: 'building' },
+  { name: 'Infrastructure', detail: 'Watch services, explain failures, propose and apply fixes.', status: 'building' },
+  { name: 'Voice', detail: 'Speak to SALEM and hear it answer, at home or on the move.', status: 'exploring' },
+  { name: 'Devices and home', detail: 'Presence across the places and devices around you.', status: 'exploring' },
+];
+
+const roadmap = [
+  { when: 'Now', items: ['SALEM architecture', 'Local and cloud foundation', 'Agent experiments', 'MCP and tool integration', 'Multi-model experiments'] },
+  { when: 'Next', items: ['SALEM World', 'Persistent context', 'Model routing', 'Voice', 'Infrastructure actions'] },
+  { when: 'Later', items: ['Proactive intelligence', 'Distributed agents', 'Telephony', 'Presence across devices', 'Third-party extensions'] },
+];
+
+const principles = [
+  { name: 'Persistent', text: 'Context survives individual conversations.' },
+  { name: 'Provider-agnostic', text: 'No single AI provider owns the intelligence layer.' },
+  { name: 'Local-first where useful', text: 'Sensitive work can stay on hardware you control.' },
+  { name: 'Observable', text: 'Model choices and actions can be inspected after the fact.' },
+  { name: 'User-controlled', text: 'You can see what SALEM knows and what it can reach.' },
+  { name: 'Extensible', text: 'Tools, agents and providers are modules, not foundations.' },
+];
+---
+
+<Base>
+  <Intro />
+
+  <header class="top wrap">
+    <a href="/" class="wordmark" aria-label="SALEM home">SALEM</a>
+    <nav aria-label="Primary">
+      <a href="#world">World</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="https://github.com/alexcabreram/salem">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="stage"><span class="stage-dot" aria-hidden="true"></span>Early stage, building in public</p>
+        <h1 id="hero-title">One intelligence.<br />Everywhere you are.</h1>
+        <p class="lede">
+          SALEM is a persistent personal intelligence. It understands your digital world and acts across your tools,
+          devices and services.
+        </p>
+        <p class="lede-2">AI that lives beyond the chat window.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#idea">Read the idea</a>
+          <a class="btn" href="#architecture">See the architecture</a>
+        </div>
+      </div>
+      <Core class="hero-core" />
+    </section>
+
+    <section id="idea" class="section wrap split" aria-labelledby="idea-title">
+      <h2 id="idea-title">Your AI shouldn't disappear when the chat closes.</h2>
+      <div class="prose">
+        <p>
+          Most assistants start from zero every time you open them. SALEM is built around the opposite idea: the
+          people, projects, devices and commitments in your life persist between conversations, so every request
+          starts from what is already known.
+        </p>
+        <p>
+          It is not another chatbot or another agent framework. Models, agents and tools are parts SALEM uses. SALEM is
+          what stays.
+        </p>
+        <ol class="flow" aria-label="How SALEM works">
+          <li><span>Your world</span>Projects, people, devices, services, events, tasks</li>
+          <li><span>SALEM</span>One persistent context</li>
+          <li><span>Outcome</span>Reasoning and action, wherever you are</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="world" class="section wrap" aria-labelledby="world-title">
+      <div class="section-head">
+        <h2 id="world-title">An intelligence that understands your world, and shows you what it knows.</h2>
+        <p class="status-line"><span class="status status-exploring">Exploring</span> Illustrative example with fictional data.</p>
+      </div>
+      <p class="prose intro-p">
+        SALEM keeps a navigable map of your digital world. Ask what it knows about a project, what changed since
+        yesterday, or why it acted. Then correct it, or ask it to forget.
+      </p>
+      <World />
+    </section>
+
+    <section class="section wrap" aria-labelledby="route-title">
+      <div class="section-head">
+        <h2 id="route-title">The right intelligence for every task.</h2>
+        <p class="status-line"><span class="status status-building">In development</span> Today models are chosen by configuration. Automatic routing is next.</p>
+      </div>
+      <p class="prose intro-p">
+        SALEM orchestrates models instead of locking your world to one provider. Models will change. The intelligence
+        layer should not.
+      </p>
+      <dl class="routes">
+        {routes.map((r) => (
+          <div class="route">
+            <dt>{r.task}</dt>
+            <dd class="route-to">{r.to}</dd>
+            <dd class="route-why">{r.why}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section class="section wrap" aria-labelledby="act-title">
+      <h2 id="act-title">Understanding is useful. Acting is better.</h2>
+      <p class="prose intro-p">
+        Capabilities are added as layers, each with its own permissions. Running today means it works in the founder's
+        own setup, not that it is available to others yet.
+      </p>
+      <ul class="layers">
+        {layers.map((l) => (
+          <li>
+            <h3>{l.name}</h3>
+            <p>{l.detail}</p>
+            <span class={`status status-${l.status}`}>{statusLabel[l.status]}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="architecture" class="section wrap" aria-labelledby="arch-title">
+      <h2 id="arch-title">Architecture</h2>
+      <p class="prose intro-p">
+        SALEM sits above models, agents and tools. Any of them can be replaced without SALEM losing what it knows.
+      </p>
+      <div class="arch" role="img" aria-label="Interfaces connect to SALEM. SALEM holds context and orchestration, and uses models, agents and tools, which run on local and cloud systems.">
+        <div class="arch-row arch-thin">
+          <span>Messaging</span><span>Web</span><span>Voice</span><span>Desktop</span>
+        </div>
+        <div class="arch-core">
+          <strong>SALEM</strong>
+          <span>Context, memory and orchestration</span>
+        </div>
+        <div class="arch-row arch-three">
+          <div><strong>Models</strong><span>Claude, Azure, local models</span></div>
+          <div><strong>Agents</strong><span>Research, coding, infrastructure</span></div>
+          <div><strong>Tools</strong><span>MCP, APIs, CLI</span></div>
+        </div>
+        <div class="arch-row arch-two">
+          <div><strong>Local</strong><span>Your hardware, your data, local models. For privacy, availability, latency and control.</span></div>
+          <div><strong>Cloud</strong><span>Frontier models and external services. For capability and reach.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap split" aria-labelledby="claude-title">
+      <h2 id="claude-title">Exploring Claude as a reasoning layer.</h2>
+      <div class="prose">
+        <p>
+          SALEM is evaluating Claude for complex reasoning, coordination between agents, tool use through MCP, and
+          code and infrastructure workflows, while staying multi-model by design.
+        </p>
+      </div>
+    </section>
+
+    <section id="roadmap" class="section wrap" aria-labelledby="roadmap-title">
+      <h2 id="roadmap-title">Roadmap</h2>
+      <p class="prose intro-p">What exists, what is being built and what is still an idea. Nothing below is presented as finished.</p>
+      <ol class="roadmap">
+        {roadmap.map((r) => (
+          <li>
+            <h3>{r.when}</h3>
+            <ul>{r.items.map((i) => <li>{i}</li>)}</ul>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="section wrap" aria-labelledby="principles-title">
+      <h2 id="principles-title">Principles</h2>
+      <dl class="principles">
+        {principles.map((p) => (
+          <div>
+            <dt>{p.name}</dt>
+            <dd>{p.text}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section id="about" class="section wrap split" aria-labelledby="about-title">
+      <h2 id="about-title">About</h2>
+      <div class="prose">
+        <p>
+          SALEM is an independent experiment exploring what personal AI could become when intelligence is no longer
+          confined to a chat window.
+        </p>
+        <p>
+          It is built by Alex Cabrera, an AI engineer focused on agentic systems, automation and AI architecture.
+        </p>
+        <p class="links">
+          <a href="https://github.com/alexcabreram">GitHub</a>
+          <a href="mailto:hello@getsalem.dev">hello@getsalem.dev</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot wrap">
+    <div>
+      <p class="wordmark">SALEM</p>
+      <p class="foot-tag">One intelligence. Everywhere you are.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="https://github.com/alexcabreram/salem">GitHub</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="mailto:hello@getsalem.dev">Contact</a>
+    </nav>
+  </footer>
+</Base>
+
+<style>
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 1.5rem;
+  }
+  .wordmark {
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: 0.45em;
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .top nav {
+    display: flex;
+    gap: clamp(1rem, 3vw, 2rem);
+    font-size: 0.9375rem;
+  }
+  .top nav a,
+  .foot nav a,
+  .links a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .top nav a:hover,
+  .foot nav a:hover,
+  .links a:hover {
+    color: var(--text);
+  }
+  @media (max-width: 640px) {
+    .top nav a:not(:last-child) {
+      display: none;
+    }
+  }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    min-height: min(52rem, calc(100svh - 5rem));
+    padding-block: 2rem 4rem;
+  }
+  @media (min-width: 900px) {
+    .hero {
+      grid-template-columns: 1.15fr 1fr;
+      gap: 3rem;
+    }
+  }
+  .hero :global(.hero-core) {
+    max-width: 34rem;
+    justify-self: center;
+  }
+  @media (max-width: 899px) {
+    .hero :global(.hero-core) {
+      max-width: 20rem;
+    }
+  }
+  .stage {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    margin-bottom: 1.75rem;
+  }
+  .stage-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--lamp);
+    margin-right: 0.65rem;
+    box-shadow: 0 0 10px var(--lamp);
+  }
+  h1 {
+    font-size: clamp(2.75rem, 6.4vw, 5.25rem);
+    font-weight: 620;
+    letter-spacing: -0.04em;
+  }
+  .lede {
+    margin-top: 1.75rem;
+    font-size: clamp(1.125rem, 1.6vw, 1.3rem);
+    max-width: 34rem;
+    color: var(--text);
+  }
+  .lede-2 {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: clamp(1.125rem, 1.6vw, 1.3rem);
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.875rem;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    font-weight: 500;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn:hover {
+    border-color: var(--muted);
+  }
+  .btn-primary {
+    background: var(--lamp);
+    border-color: var(--lamp);
+    color: var(--night);
+  }
+  .btn-primary:hover {
+    background: var(--lamp-hot);
+    border-color: var(--lamp-hot);
+  }
+
+  /* Sections */
+  .section {
+    padding-top: var(--section);
+  }
+  .section h2 {
+    font-size: clamp(2rem, 4.2vw, 3.25rem);
+    max-width: 20ch;
+  }
+  .split {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 900px) {
+    .split {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+  .prose {
+    color: var(--muted);
+    max-width: 38rem;
+  }
+  .prose p + p {
+    margin-top: 1.1rem;
+  }
+  .intro-p {
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem 3rem;
+  }
+  .status-line {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    max-width: 24rem;
+  }
+
+  /* Status: label text plus shape, never colour alone */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--text);
+    white-space: nowrap;
+    margin-right: 0.5rem;
+  }
+  .status::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    box-sizing: border-box;
+  }
+  .status-running::before {
+    background: var(--lamp);
+  }
+  .status-building::before {
+    border: 1.5px solid var(--lamp);
+    background: linear-gradient(90deg, var(--lamp) 50%, transparent 50%);
+  }
+  .status-exploring::before {
+    border: 1.5px dashed var(--muted);
+  }
+
+  /* Flow */
+  .flow {
+    list-style: none;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+  }
+  .flow li {
+    position: relative;
+    padding: 0 0 1.5rem 1.75rem;
+    border-left: 1px solid var(--line);
+  }
+  .flow li:last-child {
+    padding-bottom: 0;
+  }
+  .flow li::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 0.45rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--night);
+    border: 1px solid var(--muted);
+  }
+  .flow li:nth-child(2)::before {
+    background: var(--lamp);
+    border-color: var(--lamp);
+    box-shadow: 0 0 12px var(--lamp);
+  }
+  .flow span {
+    display: block;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Routes */
+  .routes {
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+  .route {
+    display: grid;
+    gap: 0.25rem 2rem;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 760px) {
+    .route {
+      grid-template-columns: 1.2fr 0.8fr 1.2fr;
+      align-items: baseline;
+    }
+  }
+  .route dt {
+    color: var(--muted);
+  }
+  .route dd {
+    margin: 0;
+  }
+  .route-to {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .route-to::before {
+    content: '';
+    display: inline-block;
+    width: 1.5rem;
+    height: 1px;
+    background: var(--lamp);
+    vertical-align: 0.35em;
+    margin-right: 0.75rem;
+  }
+  .route-why {
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  /* Layers */
+  .layers {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 2.5rem 3rem;
+  }
+  @media (min-width: 700px) {
+    .layers {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .layers {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .layers li {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+  }
+  .layers h3 {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+  .layers p {
+    color: var(--muted);
+  }
+
+  /* Architecture */
+  .arch {
+    display: grid;
+    gap: 1.25rem;
+    position: relative;
+  }
+  .arch > * {
+    position: relative;
+  }
+  .arch > * + *::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -1.25rem;
+    height: 1.25rem;
+    width: 1px;
+    background: var(--line);
+  }
+  .arch-row {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .arch-row > * {
+    background: var(--coal);
+    padding: 1.1rem 1.25rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .arch-row strong {
+    font-weight: 600;
+  }
+  .arch-row span {
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+  .arch-thin {
+    grid-template-columns: repeat(4, 1fr);
+    border-radius: 999px;
+  }
+  .arch-thin > * {
+    text-align: center;
+    padding: 0.7rem 0.5rem;
+  }
+  .arch-core {
+    justify-self: center;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    padding: 1.5rem 2.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--lamp);
+    background: radial-gradient(closest-side, rgba(232, 196, 106, 0.16), transparent);
+    text-align: center;
+  }
+  .arch-core strong {
+    letter-spacing: 0.4em;
+    margin-right: -0.4em;
+    font-weight: 600;
+  }
+  .arch-core span {
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+  @media (min-width: 700px) {
+    .arch-three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .arch-two {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 520px) {
+    .arch-thin {
+      grid-template-columns: repeat(2, 1fr);
+      border-radius: 10px;
+    }
+  }
+
+  /* Roadmap */
+  .roadmap {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 760px) {
+    .roadmap {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+    .roadmap > li {
+      padding-right: 2rem;
+    }
+    .roadmap > li + li {
+      padding-left: 2rem;
+      border-left: 1px solid var(--line);
+    }
+  }
+  .roadmap h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .roadmap > li:first-child h3 {
+    color: var(--lamp);
+  }
+  .roadmap ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--muted);
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  /* Principles */
+  .principles {
+    margin: 3rem 0 0;
+    display: grid;
+    gap: 2rem 3rem;
+  }
+  @media (min-width: 700px) {
+    .principles {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .principles {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .principles dt {
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+  .principles dd {
+    margin: 0.35rem 0 0;
+    color: var(--muted);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .links a {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 4px;
+  }
+
+  /* Footer */
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-top: var(--section);
+    padding-block: 3rem;
+    border-top: 1px solid var(--line);
+  }
+  .foot-tag {
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+  .foot nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+</style>

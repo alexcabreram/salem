@@ -1,0 +1,103 @@
+---
+// One short opening sequence per session. Skippable; never shown with reduced motion or without JS.
+---
+
+<div class="intro" data-intro aria-hidden="true">
+  <p class="intro-mark">
+    {'SALEM'.split('').map((c, i) => <span style={`--i:${i}`}>{c}</span>)}
+  </p>
+  <p class="intro-greeting" data-greeting>Good evening.</p>
+  <button type="button" class="intro-skip" data-intro-skip tabindex="-1">Skip intro</button>
+</div>
+
+<style>
+  .intro {
+    display: none;
+  }
+  :global(html.intro) .intro {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-content: center;
+    gap: 1.75rem;
+    justify-items: center;
+    background: var(--night);
+    transition: opacity 0.7s ease, visibility 0.7s;
+  }
+  :global(html.intro-done) .intro {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .intro-mark {
+    margin: 0;
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 500;
+    letter-spacing: 0.6em;
+    margin-right: -0.6em;
+  }
+  .intro-mark span {
+    display: inline-block;
+    opacity: 0;
+    animation: letter 0.6s ease forwards;
+    animation-delay: calc(var(--i) * 0.12s + 0.15s);
+  }
+  .intro-greeting {
+    margin: 0;
+    color: var(--muted);
+    opacity: 0;
+    animation: letter 0.8s ease 1.1s forwards;
+  }
+  .intro-skip {
+    position: fixed;
+    right: var(--gutter);
+    bottom: var(--gutter);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+  }
+  .intro-skip:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+  @keyframes letter {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+</style>
+
+<script>
+  const html = document.documentElement;
+  const root = document.querySelector<HTMLElement>('[data-intro]');
+  if (root && html.classList.contains('intro')) {
+    const h = new Date().getHours();
+    const greeting = h >= 5 && h < 12 ? 'Good morning.' : h >= 12 && h < 19 ? 'Good afternoon.' : 'Good evening.';
+    const g = root.querySelector('[data-greeting]');
+    if (g) g.textContent = greeting;
+
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      html.classList.add('intro-done');
+      try {
+        sessionStorage.setItem('salem-intro', '1');
+      } catch {}
+      window.setTimeout(() => html.classList.remove('intro', 'intro-done'), 800);
+    };
+    window.setTimeout(finish, 2600);
+    root.addEventListener('click', finish);
+    window.addEventListener('keydown', finish, { once: true });
+  }
+</script>
