@@ -13,13 +13,17 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const clips = [
   // fresh: clear session so the intro plays. scrollTo: element to bring into view before recording.
-  { name: 'intro-hero', fresh: true, duration: 6500, every: 160 },
+  { name: 'intro-hero', fresh: true, duration: 7000, every: 140 },
   { name: 'today', scrollTo: '#today', duration: 7000, every: 220 },
   { name: 'world-mission', scrollTo: '#world .world', block: 'center', duration: 7500, every: 220 },
   { name: 'routing', scrollTo: '.routes', block: 'center', duration: 3000, every: 120 },
   { name: 'architecture', scrollTo: '.arch', block: 'center', duration: 3000, every: 120 },
   { name: 'hero-delegate', hover: '[data-delegate]', duration: 4000, every: 160 },
 ];
+
+// Optional: CLIPS=intro-hero,today node scripts/record.mjs
+const only = process.env.CLIPS?.split(',');
+const selected = only ? clips.filter((c) => only.includes(c.name)) : clips;
 
 const chrome = spawn(CHROME, [
   '--headless=new', `--remote-debugging-port=${PORT}`, '--hide-scrollbars',
@@ -57,7 +61,7 @@ try {
   await send('Page.enable');
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 
-  for (const c of clips) {
+  for (const c of selected) {
     await send('Page.navigate', { url: BASE });
     await sleep(1200);
     if (c.fresh) {

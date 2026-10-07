@@ -1,10 +1,12 @@
+<img src="public/salem-mark.svg" width="72" alt="SALEM mark: a cat's head drawn as a window, its eyes closed in a slow blink">
+
 # SALEM
 
 ### One intelligence. Everywhere you are.
 
 SALEM explores a future where personal AI is no longer confined to a chat window.
 
-It is a persistent personal intelligence: it keeps context about the people, projects, devices and services in
+It is a persistent personal intelligence, a familiar for your digital life: it keeps context about the people, projects, devices and services in
 your life, and acts across them. Models, agents and tools are parts SALEM uses. SALEM is what stays.
 
 Website: [getsalem.dev](https://getsalem.dev)

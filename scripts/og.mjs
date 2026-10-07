@@ -24,9 +24,9 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" vi
   </g>
   <circle cx="900" cy="315" r="150" fill="url(#core)"/>
   <circle cx="900" cy="315" r="190" fill="none" stroke="#E8C46A" stroke-opacity=".16"/>
-  <g transform="translate(80 108) scale(.66)">
-    <path d="M36 11 H 22 A 11 11 0 0 0 11 22 V 42 A 11 11 0 0 0 22 53 H 42 A 11 11 0 0 0 53 42 V 28" fill="none" stroke="#E9E7E2" stroke-width="4.8" stroke-linecap="round"/>
-    <circle cx="48" cy="16" r="5.8" fill="#FFF4D6"/>
+  <g transform="translate(80 104) scale(.66)">
+    <path d="M12 44 V 12 L 23.5 21 H 40.5 L 52 12 V 44 A 10 10 0 0 1 42 54 H 22 A 10 10 0 0 1 12 44 Z" fill="none" stroke="#E9E7E2" stroke-width="4.8" stroke-linejoin="round"/>
+    <path d="M21 37 Q 25.5 41 30 37 M34 37 Q 38.5 41 43 37" fill="none" stroke="#E8C46A" stroke-width="3.6" stroke-linecap="round"/>
   </g>
   <text x="136" y="140" fill="#E9E7E2" font-family="${font}" font-size="26" font-weight="500" letter-spacing="12">SALEM</text>
   <text x="80" y="300" fill="#E9E7E2" font-family="${font}" font-size="68" font-weight="600" letter-spacing="-2">One intelligence.</text>
